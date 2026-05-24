@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StarReply — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #07090f; --bg2: #0d1117; --bg3: #161b27; --border: #1e2535;
+    --gold: #f59e0b; --green: #22c55e; --text: #f1f5f9; --muted: #8b99b5;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; display: flex;
+    align-items: center; justify-content: center;
+    padding: 2rem 1rem;
+  }
+  body::before {
+    content: '';
+    position: fixed; top: -300px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 700px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 2.5rem;
+    width: 420px; max-width: 100%;
+  }
+  .logo {
+    font-size: 1.5rem; font-weight: 800;
+    text-align: center; margin-bottom: 0.5rem;
+  }
+  .logo span { color: var(--gold); }
+  .tagline {
+    text-align: center; color: var(--muted);
+    font-size: 0.85rem; margin-bottom: 2rem;
+  }
+  .tabs {
+    display: flex; background: var(--bg3);
+    border-radius: 10px; padding: 4px;
+    margin-bottom: 1.75rem;
+  }
+  .tab {
+    flex: 1; text-align: center; padding: 0.55rem;
+    border-radius: 7px; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; color: var(--muted);
+  }
+  .tab.active { background: var(--bg2); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+  .form-group { margin-bottom: 1rem; }
+  .form-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 0.4rem; }
+  .form-input {
+    width: 100%; padding: 0.75rem 1rem;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-size: 0.9rem; font-family: inherit; outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--gold); }
+  .form-input::placeholder { color: var(--muted); }
+  .btn-submit {
+    width: 100%; padding: 0.85rem;
+    background: var(--gold); color: #0a0e1a;
+    border: none; border-radius: 10px;
+    font-size: 0.95rem; font-weight: 700;
+    font-family: inherit; cursor: pointer;
+    transition: all 0.2s; margin-top: 0.5rem;
+  }
+  .btn-submit:hover { background: #fbbf24; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(245,158,11,0.3); }
+  .divider {
+    display: flex; align-items: center; gap: 1rem;
+    margin: 1.25rem 0; color: var(--muted); font-size: 0.78rem;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .btn-google {
+    width: 100%; padding: 0.75rem;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-size: 0.88rem; font-weight: 600;
+    font-family: inherit; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+    transition: all 0.2s;
+  }
+  .btn-google:hover { border-color: var(--muted); }
+  .google-icon { font-size: 1.1rem; }
+  .forgot { text-align: right; margin-top: -0.5rem; margin-bottom: 1rem; }
+  .forgot a { font-size: 0.78rem; color: var(--muted); text-decoration: none; }
+  .forgot a:hover { color: var(--gold); }
+  .bottom-text { text-align: center; font-size: 0.78rem; color: var(--muted); margin-top: 1.5rem; }
+  .bottom-text a { color: var(--gold); text-decoration: none; }
+  .trial-badge {
+    text-align: center;
+    background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2);
+    border-radius: 8px; padding: 0.65rem;
+    font-size: 0.78rem; color: var(--green);
+    font-weight: 600; margin-bottom: 1.5rem;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">⭐ Star<span>Reply</span></div>
+  <div class="tagline">Auto-respond to Google Reviews with AI</div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('login', this)">Sign In</div>
+    <div class="tab" onclick="switchTab('signup', this)">Create Account</div>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <div id="loginForm">
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" placeholder="you@example.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" placeholder="••••••••">
+    </div>
+    <div class="forgot"><a href="#">Forgot password?</a></div>
+    <button class="btn-submit" onclick="window.location='dashboard.html'">Sign In →</button>
+    <div class="divider">or continue with</div>
+    <button class="btn-google" onclick="window.location='dashboard.html'">
+      <span class="google-icon">G</span> Sign in with Google
+    </button>
+  </div>
+
+  <!-- SIGNUP FORM -->
+  <div id="signupForm" style="display:none">
+    <div class="trial-badge">🎁 14-day free trial — no credit card required</div>
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input class="form-input" type="text" placeholder="Jessica Chen">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Business Email</label>
+      <input class="form-input" type="email" placeholder="you@yourbusiness.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" placeholder="Create a strong password">
+    </div>
+    <button class="btn-submit" onclick="window.location='dashboard.html'">Start Free Trial →</button>
+    <div class="divider">or sign up with</div>
+    <button class="btn-google" onclick="window.location='dashboard.html'">
+      <span class="google-icon">G</span> Continue with Google
+    </button>
+    <div class="bottom-text" style="margin-top:1rem">
+      By signing up, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(tab, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('loginForm').style.display  = tab === 'login'  ? '' : 'none';
+    document.getElementById('signupForm').style.display = tab === 'signup' ? '' : 'none';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StarReply — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:      #07090f;
+    --bg2:     #0d1117;
+    --bg3:     #161b27;
+    --bg4:     #1c2333;
+    --border:  #1e2535;
+    --gold:    #f59e0b;
+    --green:   #22c55e;
+    --red:     #ef4444;
+    --orange:  #f97316;
+    --blue:    #3b82f6;
+    --purple:  #8b5cf6;
+    --text:    #f1f5f9;
+    --muted:   #8b99b5;
+    --sidebar: 240px;
+    --radius:  12px;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 50;
+  }
+  .sidebar-logo {
+    padding: 1.5rem 1.25rem 1rem;
+    font-size: 1.2rem; font-weight: 800;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .sidebar-logo span { color: var(--gold); }
+  .sidebar-section {
+    padding: 0.75rem 1rem 0.25rem;
+    font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); margin-top: 0.5rem;
+  }
+  .sidebar-nav { padding: 0.25rem 0.5rem; flex: 1; }
+  .nav-item {
+    display: flex; align-items: center; gap: 0.65rem;
+    padding: 0.65rem 0.75rem; border-radius: 8px;
+    cursor: pointer; transition: all 0.15s;
+    color: var(--muted); font-weight: 500;
+    margin-bottom: 2px; text-decoration: none;
+    position: relative;
+  }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: rgba(245,158,11,0.12); color: var(--gold); }
+  .nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+  .nav-item .badge {
+    margin-left: auto;
+    background: var(--red); color: white;
+    font-size: 0.65rem; font-weight: 700;
+    padding: 0.15rem 0.45rem; border-radius: 99px;
+    min-width: 18px; text-align: center;
+  }
+  .nav-item .badge.gold { background: rgba(245,158,11,0.2); color: var(--gold); }
+  .sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .user-card {
+    display: flex; align-items: center; gap: 0.65rem;
+    padding: 0.65rem; border-radius: 8px;
+    background: var(--bg3); cursor: pointer;
+  }
+  .user-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #f97316);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem; color: #0a0e1a;
+    flex-shrink: 0;
+  }
+  .user-name { font-size: 0.8rem; font-weight: 600; }
+  .user-plan { font-size: 0.7rem; color: var(--gold); }
+  .location-pill {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem 0.75rem; margin: 0 0.5rem 0.5rem;
+    background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 8px; cursor: pointer;
+  }
+  .location-pill .loc-icon { font-size: 0.9rem; }
+  .location-pill .loc-name { font-size: 0.78rem; font-weight: 600; color: var(--text); flex: 1; }
+  .location-pill .loc-arrow { color: var(--muted); font-size: 0.7rem; }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: var(--sidebar);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    height: 60px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.5rem;
+    position: sticky; top: 0; z-index: 40;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 1rem; }
+  .page-title { font-size: 1rem; font-weight: 700; }
+  .topbar-right { display: flex; align-items: center; gap: 0.75rem; }
+  .tb-btn {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.45rem 0.85rem; border-radius: 7px;
+    font-size: 0.78rem; font-weight: 600; cursor: pointer;
+    border: none; font-family: inherit; transition: all 0.15s;
+  }
+  .tb-btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .tb-btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+  .tb-btn-gold { background: var(--gold); color: #0a0e1a; }
+  .tb-btn-gold:hover { background: #fbbf24; }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+  }
+  .status-label { font-size: 0.75rem; color: var(--green); font-weight: 600; }
+
+  /* ── CONTENT ── */
+  .content { padding: 1.5rem; flex: 1; }
+
+  /* ── STATS BAR ── */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1rem; margin-bottom: 1.5rem;
+  }
+  .stat-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.25rem;
+    display: flex; flex-direction: column; gap: 0.35rem;
+  }
+  .stat-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .stat-value { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+  .stat-change {
+    font-size: 0.72rem; font-weight: 600;
+    display: flex; align-items: center; gap: 0.25rem;
+  }
+  .stat-change.up { color: var(--green); }
+  .stat-change.down { color: var(--red); }
+
+  /* ── FILTERS ── */
+  .filters {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-bottom: 1.25rem; flex-wrap: wrap;
+  }
+  .filter-tabs { display: flex; gap: 0.35rem; }
+  .filter-tab {
+    padding: 0.4rem 0.85rem; border-radius: 7px;
+    font-size: 0.78rem; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--border);
+    background: transparent; color: var(--muted);
+    transition: all 0.15s; font-family: inherit;
+  }
+  .filter-tab.active { background: rgba(245,158,11,0.12); color: var(--gold); border-color: rgba(245,158,11,0.3); }
+  .filter-tab:hover:not(.active) { color: var(--text); border-color: var(--muted); }
+  .filter-right { margin-left: auto; display: flex; gap: 0.5rem; }
+  .search-box {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 7px; padding: 0.4rem 0.75rem;
+  }
+  .search-box input {
+    background: none; border: none; outline: none;
+    color: var(--text); font-size: 0.78rem; font-family: inherit;
+    width: 160px;
+  }
+  .search-box input::placeholder { color: var(--muted); }
+
+  /* ── REVIEW LIST ── */
+  .reviews-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .review-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .review-card:hover { border-color: rgba(245,158,11,0.25); }
+  .review-card.pending { border-left: 3px solid var(--orange); }
+  .review-card.sent    { border-left: 3px solid var(--green); }
+  .review-card.negative { border-left: 3px solid var(--red); }
+
+  .review-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 1.1rem 1.25rem 0.75rem;
+  }
+  .reviewer-info { display: flex; align-items: flex-start; gap: 0.75rem; }
+  .reviewer-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem; color: white; flex-shrink: 0;
+  }
+  .reviewer-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.2rem; }
+  .reviewer-meta { display: flex; align-items: center; gap: 0.5rem; }
+  .review-stars { color: var(--gold); font-size: 0.8rem; }
+  .review-stars.low { color: var(--red); }
+  .review-date { font-size: 0.72rem; color: var(--muted); }
+  .review-source {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted);
+    background: var(--bg3); padding: 0.15rem 0.5rem; border-radius: 4px;
+  }
+
+  .review-status-badge {
+    display: flex; align-items: center; gap: 0.35rem;
+    font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.65rem;
+    border-radius: 99px; flex-shrink: 0;
+  }
+  .badge-pending  { background: rgba(249,115,22,0.12); color: var(--orange); }
+  .badge-sent     { background: rgba(34,197,94,0.12);  color: var(--green);  }
+  .badge-negative { background: rgba(239,68,68,0.12);  color: var(--red);    }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .review-text {
+    padding: 0 1.25rem 0.75rem;
+    font-size: 0.85rem; color: var(--muted); line-height: 1.65;
+  }
+  .review-text.collapsed {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* AI RESPONSE BOX */
+  .ai-box {
+    margin: 0 1.25rem 1.1rem;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+  }
+  .ai-box-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.6rem 1rem;
+    background: rgba(34,197,94,0.05); border-bottom: 1px solid var(--border);
+  }
+  .ai-box-label {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--green);
+  }
+  .ai-box-label::before { content: '✦'; }
+  .ai-box-time { font-size: 0.7rem; color: var(--muted); }
+  .ai-box-text {
+    padding: 0.85rem 1rem;
+    font-size: 0.85rem; line-height: 1.65; color: var(--text);
+    outline: none;
+  }
+  .ai-box-text[contenteditable="true"]:focus {
+    background: rgba(245,158,11,0.03);
+  }
+  .ai-box-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.6rem 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .char-count { font-size: 0.7rem; color: var(--muted); }
+  .ai-actions { display: flex; gap: 0.5rem; }
+  .action-btn {
+    padding: 0.35rem 0.8rem; border-radius: 6px;
+    font-size: 0.75rem; font-weight: 600;
+    cursor: pointer; border: none; font-family: inherit;
+    transition: all 0.15s;
+  }
+  .btn-send    { background: var(--green); color: #0a1a0a; }
+  .btn-send:hover    { background: #16a34a; }
+  .btn-regen   { background: var(--bg4); color: var(--muted); border: 1px solid var(--border); }
+  .btn-regen:hover   { color: var(--text); }
+  .btn-edit    { background: var(--bg4); color: var(--muted); border: 1px solid var(--border); }
+  .btn-approve { background: var(--green); color: #0a1a0a; }
+  .btn-approve:hover { background: #16a34a; }
+  .btn-decline { background: var(--red); color: white; }
+  .btn-decline:hover { background: #dc2626; }
+
+  /* Sent state */
+  .sent-box {
+    margin: 0 1.25rem 1.1rem;
+    background: rgba(34,197,94,0.05); border: 1px solid rgba(34,197,94,0.15);
+    border-radius: 8px; padding: 0.85rem 1rem;
+    font-size: 0.83rem; color: var(--muted); line-height: 1.6;
+  }
+  .sent-box-header {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.7rem; font-weight: 700; color: var(--green);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.5rem;
+  }
+
+  /* Negative pending */
+  .negative-alert {
+    margin: 0 1.25rem 1.1rem;
+    background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 8px; padding: 1rem;
+  }
+  .negative-alert-title {
+    font-size: 0.72rem; font-weight: 700; color: var(--red);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .negative-alert-text {
+    font-size: 0.83rem; line-height: 1.6; color: var(--text); margin-bottom: 1rem;
+  }
+  .negative-alert-warn {
+    font-size: 0.75rem; color: var(--orange); margin-bottom: 0.75rem;
+    background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.2);
+    border-radius: 6px; padding: 0.5rem 0.75rem;
+  }
+
+  /* ── PAGINATION ── */
+  .pagination {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.5rem; margin-top: 1.5rem;
+  }
+  .page-btn {
+    width: 32px; height: 32px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--border);
+    background: transparent; color: var(--muted);
+    transition: all 0.15s; font-family: inherit;
+  }
+  .page-btn.active { background: var(--gold); color: #0a0e1a; border-color: var(--gold); }
+  .page-btn:hover:not(.active) { color: var(--text); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: var(--bg3); border: 1px solid var(--green);
+    border-radius: 10px; padding: 0.85rem 1.25rem;
+    display: flex; align-items: center; gap: 0.75rem;
+    font-size: 0.85rem; font-weight: 600; color: var(--green);
+    box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s ease; z-index: 200;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── MODAL (Settings) ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100; backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 16px; width: 520px; max-width: 95vw;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
+  }
+  .modal-title { font-size: 1rem; font-weight: 700; }
+  .modal-close {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--muted); cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-body { padding: 1.5rem; }
+  .form-group { margin-bottom: 1.25rem; }
+  .form-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 0.4rem; display: block; letter-spacing: 0.3px; }
+  .form-input {
+    width: 100%; padding: 0.65rem 0.85rem;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-size: 0.85rem; font-family: inherit; outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--gold); }
+  .form-select {
+    width: 100%; padding: 0.65rem 0.85rem;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-size: 0.85rem; font-family: inherit; outline: none;
+    appearance: none;
+  }
+  .form-textarea {
+    width: 100%; padding: 0.65rem 0.85rem;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-size: 0.85rem; font-family: inherit; outline: none;
+    resize: vertical; min-height: 90px;
+  }
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 0; border-bottom: 1px solid var(--border);
+  }
+  .toggle-info .toggle-title { font-size: 0.85rem; font-weight: 600; }
+  .toggle-info .toggle-desc  { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
+  .toggle {
+    position: relative; width: 42px; height: 24px; flex-shrink: 0;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; inset: 0; border-radius: 99px;
+    background: var(--bg4); cursor: pointer; transition: 0.2s;
+    border: 1px solid var(--border);
+  }
+  .toggle-slider::before {
+    content: ''; position: absolute;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--muted); bottom: 3px; left: 3px;
+    transition: 0.2s;
+  }
+  .toggle input:checked + .toggle-slider { background: rgba(34,197,94,0.2); border-color: var(--green); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: var(--green); }
+  .modal-footer {
+    padding: 1rem 1.5rem; border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 0.75rem;
+  }
+
+  /* Autopilot banner */
+  .autopilot-banner {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25);
+    border-radius: var(--radius); padding: 0.9rem 1.25rem;
+    margin-bottom: 1.25rem; gap: 1rem; flex-wrap: wrap;
+  }
+  .ap-left { display: flex; align-items: center; gap: 0.75rem; }
+  .ap-icon { font-size: 1.3rem; }
+  .ap-title { font-size: 0.88rem; font-weight: 700; color: var(--green); }
+  .ap-desc  { font-size: 0.75rem; color: var(--muted); }
+  .ap-switch { display: flex; align-items: center; gap: 0.5rem; }
+  .ap-switch-label { font-size: 0.78rem; font-weight: 600; color: var(--green); }
+
+  @media (max-width: 900px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .sidebar { width: 60px; }
+    .sidebar-logo span, .nav-item span:not(.icon), .sidebar-section,
+    .location-pill .loc-name, .location-pill .loc-arrow,
+    .user-name, .user-plan { display: none; }
+    .main { margin-left: 60px; }
+    .nav-item { justify-content: center; padding: 0.65rem; }
+    .nav-item .badge { position: absolute; top: 4px; right: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">⭐ <span>StarReply</span></div>
+
+  <div style="padding: 0.75rem 0.5rem 0.5rem;">
+    <div class="location-pill">
+      <span class="loc-icon">📍</span>
+      <span class="loc-name">The Bao House · Downtown</span>
+      <span class="loc-arrow">▾</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">Main</div>
+    <a class="nav-item active" onclick="showPage('reviews')">
+      <span class="icon">⭐</span>
+      <span>Reviews</span>
+      <span class="badge">3</span>
+    </a>
+    <a class="nav-item" onclick="showPage('analytics')">
+      <span class="icon">📊</span>
+      <span>Analytics</span>
+    </a>
+    <a class="nav-item" onclick="showPage('locations')">
+      <span class="icon">📍</span>
+      <span>Locations</span>
+      <span class="badge gold">1</span>
+    </a>
+
+    <div class="sidebar-section">Account</div>
+    <a class="nav-item" onclick="openSettings()">
+      <span class="icon">⚙️</span>
+      <span>Settings</span>
+    </a>
+    <a class="nav-item" onclick="showPage('billing')">
+      <span class="icon">💳</span>
+      <span>Billing</span>
+    </a>
+    <a class="nav-item" style="color:var(--muted)" href="login.html">
+      <span class="icon">🚪</span>
+      <span>Logout</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">JC</div>
+      <div>
+        <div class="user-name">Jessica Chen</div>
+        <div class="user-plan">⭐ Pro Plan</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="page-title" id="pageTitle">Reviews</div>
+    </div>
+    <div class="topbar-right">
+      <div class="status-dot"></div>
+      <div class="status-label">Autopilot ON</div>
+      <button class="tb-btn tb-btn-ghost" onclick="openSettings()">⚙️ Settings</button>
+      <button class="tb-btn tb-btn-gold" onclick="openSettings()">+ Add Location</button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content" id="pageContent">
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Reviews</div>
+        <div class="stat-value" style="color:var(--text)">247</div>
+        <div class="stat-change up">↑ 12 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Response Rate</div>
+        <div class="stat-value" style="color:var(--green)">98%</div>
+        <div class="stat-change up">↑ was 34% before</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg. Rating</div>
+        <div class="stat-value" style="color:var(--gold)">4.8★</div>
+        <div class="stat-change up">↑ 0.4 this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Review</div>
+        <div class="stat-value" style="color:var(--orange)">3</div>
+        <div class="stat-change" style="color:var(--muted)">Need your attention</div>
+      </div>
+    </div>
+
+    <!-- AUTOPILOT BANNER -->
+    <div class="autopilot-banner">
+      <div class="ap-left">
+        <div class="ap-icon">🤖</div>
+        <div>
+          <div class="ap-title">Autopilot is active</div>
+          <div class="ap-desc">5-star reviews are being answered automatically. Reviews below 4★ wait for your approval.</div>
+        </div>
+      </div>
+      <div class="ap-switch">
+        <label class="toggle">
+          <input type="checkbox" checked onchange="toggleAutopilot(this)">
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="ap-switch-label" id="apLabel">ON</span>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="setFilter('all', this)">All (247)</button>
+        <button class="filter-tab" onclick="setFilter('pending', this)">⏳ Pending (3)</button>
+        <button class="filter-tab" onclick="setFilter('sent', this)">✓ Sent (241)</button>
+        <button class="filter-tab" onclick="setFilter('negative', this)">⚠️ Negative (8)</button>
+      </div>
+      <div class="filter-right">
+        <div class="search-box">
+          <span style="color:var(--muted)">🔍</span>
+          <input type="text" placeholder="Search reviews...">
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEW CARDS -->
+    <div class="reviews-list">
+
+      <!-- 1 — PENDING (5 stars) -->
+      <div class="review-card pending">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <div class="reviewer-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">MR</div>
+            <div>
+              <div class="reviewer-name">Marcus Rivera</div>
+              <div class="reviewer-meta">
+                <div class="review-stars">★★★★★</div>
+                <div class="review-date">2 hours ago</div>
+                <div class="review-source">Google</div>
+              </div>
+            </div>
+          </div>
+          <div class="review-status-badge badge-pending">
+            <div class="badge-dot"></div> Pending
+          </div>
+        </div>
+        <div class="review-text">
+          "Absolutely love this place! The staff was incredibly welcoming and the service was super fast.
+          The food arrived perfectly and tasted amazing — exactly what I needed after a long day.
+          Will definitely be coming back next week. Highly recommend to anyone!"
+        </div>
+        <div class="ai-box">
+          <div class="ai-box-header">
+            <div class="ai-box-label">StarReply AI — Generated in 1.8s</div>
+            <div class="ai-box-time">Response ready</div>
+          </div>
+          <div class="ai-box-text" contenteditable="true" id="reply1">
+            Thank you so much, Marcus! 🌟 We're truly happy to hear you had such a wonderful experience with us.
+            Making sure every visit feels special — from the service to the food — is exactly what drives our team every day.
+            Comments like yours make it all worth it. We absolutely can't wait to welcome you back next week. See you soon! 😊
+          </div>
+          <div class="ai-box-footer">
+            <div class="char-count" id="count1">Loading...</div>
+            <div class="ai-actions">
+              <button class="action-btn btn-regen" onclick="regenReply('reply1', 'count1')">↺ Regenerate</button>
+              <button class="action-btn btn-edit" onclick="makeEditable('reply1')">✏ Edit</button>
+              <button class="action-btn btn-send" onclick="sendReply(this, 'review-1')">✓ Approve & Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2 — NEGATIVE (3 stars) — needs approval -->
+      <div class="review-card negative">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <div class="reviewer-avatar" style="background:linear-gradient(135deg,#ef4444,#f97316)">ST</div>
+            <div>
+              <div class="reviewer-name">Sandra Torres</div>
+              <div class="reviewer-meta">
+                <div class="review-stars low">★★★☆☆</div>
+                <div class="review-date">5 hours ago</div>
+                <div class="review-source">Google</div>
+              </div>
+            </div>
+          </div>
+          <div class="review-status-badge badge-negative">
+            <div class="badge-dot"></div> Needs Approval
+          </div>
+        </div>
+        <div class="review-text">
+          "Food was okay but waited almost 40 minutes for our order. The waiter said it would be 15 minutes and
+          never came back to update us. Won't come back unless things improve."
+        </div>
+        <div class="negative-alert">
+          <div class="negative-alert-title">⚠️ Sensitive Review — Your approval required</div>
+          <div class="negative-alert-text" contenteditable="true" id="reply2">
+            Hi Sandra, thank you for taking the time to share your feedback — we truly appreciate your honesty.
+            We're really sorry about the wait time during your visit. That's not the experience we want for our guests,
+            and we understand how frustrating that must have been. We're looking into this directly with our team.
+            We'd love the chance to make it right — please reach out to us at info@thebaouse.com and we'll take care of you personally. We hope to see you again soon. 🙏
+          </div>
+          <div class="negative-alert-warn">
+            💡 Tip: Personalized responses to negative reviews can recover up to 70% of upset customers.
+          </div>
+          <div class="ai-actions">
+            <button class="action-btn btn-regen" onclick="regenReply('reply2', null)" style="background:var(--bg4)">↺ Regenerate</button>
+            <button class="action-btn btn-edit" onclick="makeEditable('reply2')">✏ Edit</button>
+            <button class="action-btn btn-decline" onclick="skipReply(this)">✗ Skip</button>
+            <button class="action-btn btn-approve" onclick="sendReply(this, 'review-2')">✓ Send Response</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 — PENDING (5 stars) -->
+      <div class="review-card pending">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <div class="reviewer-avatar" style="background:linear-gradient(135deg,#22c55e,#06b6d4)">AL</div>
+            <div>
+              <div class="reviewer-name">Alex Lim</div>
+              <div class="reviewer-meta">
+                <div class="review-stars">★★★★★</div>
+                <div class="review-date">8 hours ago</div>
+                <div class="review-source">Google</div>
+              </div>
+            </div>
+          </div>
+          <div class="review-status-badge badge-pending">
+            <div class="badge-dot"></div> Pending
+          </div>
+        </div>
+        <div class="review-text review-text">
+          "Best lunch spot in the area, hands down. I bring clients here all the time and they always leave impressed.
+          The presentation is beautiful and the staff always remembers our preferences. 10/10."
+        </div>
+        <div class="ai-box">
+          <div class="ai-box-header">
+            <div class="ai-box-label">StarReply AI — Generated in 2.1s</div>
+            <div class="ai-box-time">Response ready</div>
+          </div>
+          <div class="ai-box-text" contenteditable="true" id="reply3">
+            Alex, this genuinely made our whole team smile! 😊 There's nothing better than hearing that we're
+            the go-to spot for your client meetings — we take that trust very seriously. The fact that your clients
+            leave impressed every time means the world to us. We'll keep doing everything we can to live up to that
+            10/10 standard. Thank you so much for your continued support — see you soon! 🙌
+          </div>
+          <div class="ai-box-footer">
+            <div class="char-count" id="count3">Loading...</div>
+            <div class="ai-actions">
+              <button class="action-btn btn-regen" onclick="regenReply('reply3', 'count3')">↺ Regenerate</button>
+              <button class="action-btn btn-edit" onclick="makeEditable('reply3')">✏ Edit</button>
+              <button class="action-btn btn-send" onclick="sendReply(this, 'review-3')">✓ Approve & Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 — SENT -->
+      <div class="review-card sent">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <div class="reviewer-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">KP</div>
+            <div>
+              <div class="reviewer-name">Karen Park</div>
+              <div class="reviewer-meta">
+                <div class="review-stars">★★★★★</div>
+                <div class="review-date">Yesterday · 6:42 PM</div>
+                <div class="review-source">Google</div>
+              </div>
+            </div>
+          </div>
+          <div class="review-status-badge badge-sent">
+            <div class="badge-dot"></div> Sent
+          </div>
+        </div>
+        <div class="review-text review-text collapsed">
+          "Amazing experience from start to finish. The ambiance is beautiful and the food is consistently excellent.
+          My go-to restaurant in the city without a doubt."
+        </div>
+        <div class="sent-box">
+          <div class="sent-box-header">✓ StarReply sent · Yesterday at 6:43 PM · 58 seconds after review</div>
+          "Thank you so much, Karen! 🌟 Hearing that we're your go-to in the city is the highest compliment we could ask for.
+          We put so much care into every detail — from the ambiance to every dish — so it means everything to know you feel that.
+          Can't wait to see you again soon! 😊"
+        </div>
+      </div>
+
+      <!-- 5 — SENT -->
+      <div class="review-card sent">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <div class="reviewer-avatar" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">DM</div>
+            <div>
+              <div class="reviewer-name">David Moreira</div>
+              <div class="reviewer-meta">
+                <div class="review-stars">★★★★★</div>
+                <div class="review-date">2 days ago</div>
+                <div class="review-source">Google</div>
+              </div>
+            </div>
+          </div>
+          <div class="review-status-badge badge-sent">
+            <div class="badge-dot"></div> Sent
+          </div>
+        </div>
+        <div class="review-text review-text collapsed">
+          "Incredible food, incredible service. The team went above and beyond during my birthday dinner. Highly recommend!"
+        </div>
+        <div class="sent-box">
+          <div class="sent-box-header">✓ StarReply sent · 2 days ago · Autopilot</div>
+          "David, happy birthday (a little belated)! 🎂 We're so glad we could be part of your special day.
+          Making moments like these memorable is exactly why we do what we do. Hope to celebrate with you again next year! 🥂"
+        </div>
+      </div>
+
+    </div><!-- end reviews-list -->
+
+    <!-- PAGINATION -->
+    <div class="pagination">
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <span style="color:var(--muted);font-size:0.78rem">... 18 pages</span>
+      <button class="page-btn">→</button>
+    </div>
+
+  </div><!-- end content -->
+</div><!-- end main -->
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span>✓</span> <span id="toastMsg">Reply sent to Google!</span>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ Settings — The Bao House</div>
+      <button class="modal-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label class="form-label">Business Name</label>
+        <input class="form-input" type="text" value="The Bao House">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Brand Voice / Tone</label>
+        <select class="form-select">
+          <option selected>Friendly & Warm (recommended)</option>
+          <option>Professional & Formal</option>
+          <option>Casual & Fun</option>
+          <option>Luxury & Elegant</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Custom Instructions for AI (optional)</label>
+        <textarea class="form-textarea" placeholder="e.g. Always mention our loyalty program. Never use exclamation marks more than twice. Sign off as 'The Team'."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Response Language</label>
+        <select class="form-select">
+          <option>Same as reviewer (auto-detect)</option>
+          <option>English only</option>
+          <option>Portuguese only</option>
+          <option>Spanish only</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" style="margin-bottom:0.75rem">Automation Rules</label>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">Autopilot — 5-star reviews</div>
+            <div class="toggle-desc">Respond automatically without your approval</div>
+          </div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">Hold 1–3 star reviews for approval</div>
+            <div class="toggle-desc">You review and approve before sending</div>
+          </div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">Email notifications for new reviews</div>
+            <div class="toggle-desc">Get an email when a new review comes in</div>
+          </div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row" style="border-bottom:none">
+          <div class="toggle-info">
+            <div class="toggle-title">Weekly summary report</div>
+            <div class="toggle-desc">Receive a weekly email with your review stats</div>
+          </div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn btn-regen" onclick="closeSettings()">Cancel</button>
+      <button class="action-btn btn-send" onclick="saveSettings()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Init char counts
+  function updateCount(id, countId) {
+    if (!countId) return;
+    const el = document.getElementById(id);
+    const count = document.getElementById(countId);
+    if (el && count) {
+      const len = el.innerText.trim().length;
+      count.textContent = len + ' / 4000 characters';
+      count.style.color = len > 3800 ? 'var(--red)' : 'var(--muted)';
+    }
+  }
+  ['reply1','reply3'].forEach((id, i) => {
+    const countId = id.replace('reply','count');
+    updateCount(id, countId);
+    document.getElementById(id)?.addEventListener('input', () => updateCount(id, countId));
+  });
+
+  // Toast
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // Send reply
+  function sendReply(btn, reviewId) {
+    const card = btn.closest('.review-card');
+    const aiBox = card.querySelector('.ai-box, .negative-alert');
+    const badge = card.querySelector('.review-status-badge');
+
+    // Swap badge
+    badge.className = 'review-status-badge badge-sent';
+    badge.innerHTML = '<div class="badge-dot"></div> Sent';
+
+    // Swap card color
+    card.className = 'review-card sent';
+
+    // Get reply text
+    const replyEl = aiBox.querySelector('[id^=reply]');
+    const replyText = replyEl ? replyEl.innerText.trim() : '';
+
+    // Replace ai-box with sent-box
+    const now = new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+    const sentBox = document.createElement('div');
+    sentBox.className = 'sent-box';
+    sentBox.innerHTML = `<div class="sent-box-header">✓ StarReply sent · Today at ${now} · Just now</div>${replyText}`;
+    aiBox.replaceWith(sentBox);
+
+    showToast('Reply sent to Google! ✓');
+  }
+
+  // Skip reply
+  function skipReply(btn) {
+    const card = btn.closest('.review-card');
+    const alert = card.querySelector('.negative-alert');
+    const badge = card.querySelector('.review-status-badge');
+    badge.className = 'review-status-badge';
+    badge.innerHTML = '<div class="badge-dot" style="background:var(--muted)"></div> <span style="color:var(--muted)">Skipped</span>';
+    card.className = 'review-card';
+    alert.innerHTML = '<div style="font-size:0.8rem;color:var(--muted);padding:0.5rem 0">Response skipped.</div>';
+  }
+
+  // Edit
+  function makeEditable(id) {
+    const el = document.getElementById(id);
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    showToast('Click inside the text to edit it ✏️');
+  }
+
+  // Regenerate (demo — rotates through example replies)
+  const regenPool = [
+    "Wow, thank you so much for this amazing feedback! 🙏 Our team works incredibly hard to make every visit special, and hearing this is the best reward we could ask for. We hope to see you again very soon!",
+    "This just made our day! ☀️ We truly appreciate you taking the time to share your experience. It means a lot to our entire team. Looking forward to welcoming you back soon!",
+    "What a wonderful review — thank you! 🌟 We're so glad everything came together for you. Our team will be thrilled to hear this. Come back anytime — we'll be here! 😊",
+  ];
+  let regenIdx = 0;
+  function regenReply(replyId, countId) {
+    const el = document.getElementById(replyId);
+    if (!el) return;
+    el.style.opacity = '0.4';
+    el.style.transition = 'opacity 0.3s';
+    setTimeout(() => {
+      el.innerText = regenPool[regenIdx % regenPool.length];
+      regenIdx++;
+      el.style.opacity = '1';
+      if (countId) updateCount(replyId, countId);
+    }, 600);
+    showToast('New reply generated ✦');
+  }
+
+  // Filter tabs
+  function setFilter(filter, btn) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    // In a real app: filter review cards
+  }
+
+  // Autopilot toggle
+  function toggleAutopilot(el) {
+    const label = document.getElementById('apLabel');
+    const statusDot = document.querySelector('.status-dot');
+    const statusLabel = document.querySelector('.status-label');
+    if (el.checked) {
+      label.textContent = 'ON';
+      statusDot.style.background = 'var(--green)';
+      statusLabel.style.color = 'var(--green)';
+      statusLabel.textContent = 'Autopilot ON';
+      showToast('Autopilot enabled — reviews answered automatically');
+    } else {
+      label.textContent = 'OFF';
+      statusDot.style.background = 'var(--orange)';
+      statusLabel.style.color = 'var(--orange)';
+      statusLabel.textContent = 'Autopilot OFF';
+      showToast('Autopilot disabled — manual approval required');
+    }
+  }
+
+  // Settings modal
+  function openSettings() {
+    document.getElementById('settingsModal').classList.add('open');
+  }
+  function closeSettings() {
+    document.getElementById('settingsModal').classList.remove('open');
+  }
+  function saveSettings() {
+    closeSettings();
+    showToast('Settings saved successfully! ✓');
+  }
+
+  // Close modal on overlay click
+  document.getElementById('settingsModal').addEventListener('click', function(e) {
+    if (e.target === this) closeSettings();
+  });
+
+  // Page navigation (placeholder)
+  function showPage(page) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('pageTitle').textContent =
+      page === 'reviews' ? 'Reviews' :
+      page === 'analytics' ? 'Analytics' :
+      page === 'locations' ? 'Locations' :
+      page === 'billing' ? 'Billing' : page;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StarReply — Auto-respond to Google Reviews with AI</title>
+<meta name="description" content="StarReply automatically responds to all your Google Reviews with personalized, professional AI replies. Set it and forget it. Boost your ranking. Never miss a review again.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #07090f;
+    --bg2:      #0d1117;
+    --bg3:      #161b27;
+    --border:   #1e2535;
+    --gold:     #f59e0b;
+    --gold2:    #fbbf24;
+    --green:    #22c55e;
+    --blue:     #3b82f6;
+    --text:     #f1f5f9;
+    --muted:    #8b99b5;
+    --radius:   14px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 2rem;
+    background: rgba(7,9,15,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px;
+    display: flex; align-items: center; gap: 0.4rem;
+    text-decoration: none; color: var(--text);
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links { display: flex; align-items: center; gap: 1.5rem; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 0.5rem; padding: 0.65rem 1.4rem; border-radius: 8px;
+    font-weight: 600; font-size: 0.9rem; cursor: pointer;
+    text-decoration: none; transition: all 0.2s; border: none;
+  }
+  .btn-gold {
+    background: var(--gold); color: #0a0e1a;
+  }
+  .btn-gold:hover { background: var(--gold2); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(245,158,11,0.35); }
+  .btn-outline {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-lg { padding: 0.9rem 2rem; font-size: 1rem; border-radius: 10px; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center;
+    padding: 8rem 1.5rem 5rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 800px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.4rem 1rem; border-radius: 99px;
+    background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
+    font-size: 0.8rem; font-weight: 600; color: var(--gold);
+    margin-bottom: 2rem; letter-spacing: 0.5px;
+  }
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    font-weight: 900; line-height: 1.08;
+    letter-spacing: -2px; margin-bottom: 1.5rem;
+    max-width: 800px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--gold), #fb923c);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    font-size: 1.15rem; color: var(--muted);
+    max-width: 560px; margin-bottom: 2.5rem; line-height: 1.7;
+  }
+
+  /* Email form */
+  .hero-form {
+    display: flex; gap: 0.75rem; flex-wrap: wrap;
+    justify-content: center; margin-bottom: 2rem;
+    width: 100%; max-width: 480px;
+  }
+  .hero-form input {
+    flex: 1; min-width: 220px;
+    padding: 0.85rem 1.2rem; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--bg3);
+    color: var(--text); font-size: 0.95rem; font-family: inherit;
+    outline: none; transition: border-color 0.2s;
+  }
+  .hero-form input:focus { border-color: var(--gold); }
+  .hero-form input::placeholder { color: var(--muted); }
+
+  .hero-trust {
+    display: flex; align-items: center; gap: 0.75rem;
+    color: var(--muted); font-size: 0.82rem;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .hero-trust .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
+
+  /* Stars row */
+  .stars { color: var(--gold); font-size: 1.1rem; letter-spacing: 2px; }
+
+  /* Social proof bar */
+  .social-bar {
+    display: flex; align-items: center; justify-content: center;
+    gap: 3rem; flex-wrap: wrap;
+    padding: 2rem 1.5rem;
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .social-stat { text-align: center; }
+  .social-stat .num {
+    font-size: 2rem; font-weight: 800; color: var(--text);
+    letter-spacing: -1px;
+  }
+  .social-stat .num span { color: var(--gold); }
+  .social-stat .label { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
+
+  /* ── SECTIONS ── */
+  section { padding: 6rem 1.5rem; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section-label::before {
+    content: ''; width: 20px; height: 2px; background: var(--gold); border-radius: 2px;
+  }
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800; letter-spacing: -1px; line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+  .section-sub { font-size: 1.05rem; color: var(--muted); max-width: 540px; line-height: 1.7; }
+
+  /* ── PROBLEM ── */
+  #problem { background: var(--bg2); }
+  .problem-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .problem-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.8rem;
+  }
+  .problem-icon {
+    font-size: 2rem; margin-bottom: 1rem;
+  }
+  .problem-card h3 {
+    font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+  .problem-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+
+  /* ── HOW IT WORKS ── */
+  #how { text-align: center; }
+  .steps {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem; margin-top: 4rem; position: relative;
+  }
+  .step {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; position: relative;
+  }
+  .step-num {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(245,158,11,0.1); border: 2px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: 800; color: var(--gold);
+    margin-bottom: 1.5rem; position: relative; z-index: 1;
+  }
+  .step h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .step p { color: var(--muted); font-size: 0.9rem; max-width: 240px; }
+  .step-connector {
+    position: absolute; top: 28px; left: calc(50% + 28px);
+    width: calc(100% - 56px); height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+
+  /* ── DEMO CARD ── */
+  .demo-wrapper {
+    margin-top: 5rem; max-width: 700px; margin-left: auto; margin-right: auto;
+  }
+  .demo-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .demo-top {
+    background: var(--bg2); padding: 0.75rem 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .demo-title { font-size: 0.75rem; color: var(--muted); margin-left: 0.5rem; }
+  .demo-body { padding: 1.5rem; }
+  .review-bubble {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.2rem; margin-bottom: 1rem;
+  }
+  .review-meta {
+    display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
+  }
+  .review-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .review-name { font-weight: 600; font-size: 0.9rem; }
+  .review-date { font-size: 0.75rem; color: var(--muted); }
+  .review-stars { color: var(--gold); font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .review-text { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+  .ai-response {
+    background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.25);
+    border-radius: 10px; padding: 1.2rem;
+  }
+  .ai-badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.72rem; font-weight: 700; color: var(--green);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.75rem;
+  }
+  .ai-badge::before { content: '✦'; font-size: 0.8rem; }
+  .ai-text { font-size: 0.88rem; line-height: 1.65; color: var(--text); }
+  .ai-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 1rem; padding-top: 0.75rem;
+    border-top: 1px solid rgba(34,197,94,0.15);
+  }
+  .ai-time { font-size: 0.75rem; color: var(--muted); }
+  .ai-actions { display: flex; gap: 0.5rem; }
+  .ai-btn {
+    padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.75rem;
+    font-weight: 600; cursor: pointer; border: none; font-family: inherit;
+  }
+  .ai-btn-approve { background: var(--green); color: #0a1a0a; }
+  .ai-btn-edit { background: var(--bg2); color: var(--muted); border: 1px solid var(--border); }
+
+  /* ── FEATURES ── */
+  #features { background: var(--bg2); }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .feature-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.8rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .feature-card:hover {
+    border-color: rgba(245,158,11,0.4);
+    transform: translateY(-3px);
+  }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; margin-bottom: 1.2rem;
+  }
+  .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .feature-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+
+  /* ── PRICING ── */
+  #pricing { text-align: center; }
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; margin-top: 4rem; max-width: 950px; margin-left: auto; margin-right: auto;
+    align-items: start;
+  }
+  .plan {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 2rem; text-align: left;
+    position: relative;
+  }
+  .plan.popular {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, rgba(245,158,11,0.06), var(--bg3));
+  }
+  .plan-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--gold); color: #0a0e1a;
+    font-size: 0.7rem; font-weight: 800; letter-spacing: 1px;
+    text-transform: uppercase; padding: 0.25rem 0.9rem; border-radius: 99px;
+    white-space: nowrap;
+  }
+  .plan-name { font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 0.5rem; }
+  .plan-price {
+    font-size: 2.6rem; font-weight: 900; letter-spacing: -1px;
+    line-height: 1; margin-bottom: 0.25rem;
+  }
+  .plan-price span { font-size: 1rem; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+  .plan-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+  .plan-features li {
+    display: flex; align-items: flex-start; gap: 0.6rem;
+    font-size: 0.88rem; color: var(--text);
+  }
+  .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .plan-features li.dimmed { color: var(--muted); }
+  .plan-features li.dimmed::before { content: '—'; color: var(--border); }
+  .plan-cta { width: 100%; }
+
+  /* ── TESTIMONIALS ── */
+  #testimonials { background: var(--bg2); }
+  .testi-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .testi-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.8rem;
+  }
+  .testi-stars { color: var(--gold); font-size: 0.9rem; margin-bottom: 1rem; }
+  .testi-text { font-size: 0.9rem; line-height: 1.7; color: var(--text); margin-bottom: 1.2rem; font-style: italic; }
+  .testi-author { display: flex; align-items: center; gap: 0.75rem; }
+  .testi-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem; color: white; flex-shrink: 0;
+  }
+  .testi-name { font-size: 0.88rem; font-weight: 600; }
+  .testi-role { font-size: 0.78rem; color: var(--muted); }
+
+  /* ── FAQ ── */
+  #faq { text-align: left; }
+  .faq-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .faq-item {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem;
+  }
+  .faq-q { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.6rem; color: var(--text); }
+  .faq-a { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+
+  /* ── FINAL CTA ── */
+  #cta {
+    text-align: center;
+    background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(251,191,36,0.03));
+    border-top: 1px solid var(--border);
+  }
+  #cta .section-title { font-size: clamp(1.8rem, 5vw, 3rem); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--bg2); border-top: 1px solid var(--border);
+    padding: 2.5rem 1.5rem; text-align: center;
+    color: var(--muted); font-size: 0.82rem;
+  }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--gold); }
+  .footer-logo {
+    font-size: 1.2rem; font-weight: 800; color: var(--text);
+    margin-bottom: 1rem; display: block;
+  }
+  .footer-logo span { color: var(--gold); }
+
+  /* ── SUCCESS MESSAGE ── */
+  .success-msg {
+    display: none;
+    background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 10px; padding: 1rem 1.5rem;
+    color: var(--green); font-weight: 600; font-size: 0.95rem;
+    margin-top: 1rem; text-align: center; max-width: 400px;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .fade-up { animation: fadeUp 0.7s ease both; }
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+  .delay-4 { animation-delay: 0.4s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    nav { padding: 1rem; }
+    .nav-links { display: none; }
+    .hero-form { flex-direction: column; }
+    .hero-form input { width: 100%; }
+    .steps { gap: 3rem; }
+    .step-connector { display: none; }
+    .faq-grid { grid-template-columns: 1fr; }
+    .social-bar { gap: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">⭐ Star<span>Reply</span></a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a href="#cta" class="btn btn-gold">Get Early Access →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">⚡ AI-Powered · No credit card required</div>
+  <h1 class="fade-up">
+    Stop Losing Customers<br>Because You <em>Never Reply</em><br>to Your Reviews
+  </h1>
+  <p class="fade-up delay-1">
+    StarReply connects to your Google Business and automatically responds to every review —
+    personalized, professional, and on-brand. In seconds. While you sleep.
+  </p>
+  <form class="hero-form fade-up delay-2" id="heroForm">
+    <input type="email" id="heroEmail" placeholder="Enter your business email" required>
+    <button type="submit" class="btn btn-gold btn-lg">Get Early Access →</button>
+  </form>
+  <div class="success-msg" id="heroSuccess">
+    🎉 You're on the list! We'll reach out within 24 hours.
+  </div>
+  <div class="hero-trust fade-up delay-3">
+    <span>🔒 No spam, ever</span>
+    <span class="dot"></span>
+    <span>Cancel anytime</span>
+    <span class="dot"></span>
+    <span>Setup in 5 minutes</span>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF BAR -->
+<div class="social-bar">
+  <div class="social-stat">
+    <div class="num">4.8<span>★</span></div>
+    <div class="label">Average Google Rating Boost</div>
+  </div>
+  <div class="social-stat">
+    <div class="num">2<span>min</span></div>
+    <div class="label">Average Response Time</div>
+  </div>
+  <div class="social-stat">
+    <div class="num">98<span>%</span></div>
+    <div class="label">Positive Review Rate</div>
+  </div>
+  <div class="social-stat">
+    <div class="num">500<span>+</span></div>
+    <div class="label">Reviews Answered Per Month</div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="container">
+    <div class="section-label">The Problem</div>
+    <h2 class="section-title">You're losing business<br>and you don't even know it</h2>
+    <p class="section-sub">
+      88% of customers read reviews before visiting a local business.
+      And Google ranks businesses higher when they respond to reviews.
+      Every unanswered review costs you.
+    </p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon">😤</div>
+        <h3>No time to reply</h3>
+        <p>You're running a business. Between serving customers, managing staff, and handling operations — responding to reviews just doesn't happen.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">📉</div>
+        <h3>Google punishes silence</h3>
+        <p>Google's algorithm favors businesses that engage with reviews. If you're not responding, you're falling behind competitors who do.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">😡</div>
+        <h3>One bad review can kill you</h3>
+        <p>A single unanswered negative review can cost you 22% of customers. Handled correctly, it becomes a trust-building opportunity.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">🤖</div>
+        <h3>Generic responses look fake</h3>
+        <p>Copy-pasting the same reply to every review is worse than not replying. Customers see right through it and it damages your credibility.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="container">
+    <div class="section-label" style="justify-content:center">How It Works</div>
+    <h2 class="section-title">3 steps to never worry<br>about reviews again</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Connect your Google Business</h3>
+        <p>One click to link your Google Business Profile. Takes 60 seconds. No technical skills needed.</p>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Customize your brand voice</h3>
+        <p>Tell us your business name, tone (friendly, formal, fun), and any phrases you love or hate. We handle the rest.</p>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Autopilot takes over</h3>
+        <p>Every new review gets a personalized, unique AI reply — automatically sent, or sent after your approval. Your choice.</p>
+      </div>
+    </div>
+
+    <!-- DEMO CARD -->
+    <div class="demo-wrapper">
+      <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem; text-align:left;">
+        ✦ Live example — StarReply in action
+      </p>
+      <div class="demo-card">
+        <div class="demo-top">
+          <div class="demo-dot" style="background:#ff5f56"></div>
+          <div class="demo-dot" style="background:#ffbd2e"></div>
+          <div class="demo-dot" style="background:#27c93f"></div>
+          <div class="demo-title">StarReply Dashboard — New Review</div>
+        </div>
+        <div class="demo-body">
+          <div class="review-bubble">
+            <div class="review-meta">
+              <div class="review-avatar">MR</div>
+              <div>
+                <div class="review-name">Marcus Rivera</div>
+                <div class="review-date">2 hours ago · Google Review</div>
+              </div>
+            </div>
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">
+              "Absolutely love this place! The staff was incredibly welcoming and the service was fast.
+              Will definitely be coming back next week. Highly recommend to anyone looking for quality!"
+            </div>
+          </div>
+          <div class="ai-response">
+            <div class="ai-badge">StarReply AI — Auto-generated in 1.8s</div>
+            <div class="ai-text">
+              Thank you so much, Marcus! 🌟 We're beyond happy to hear you had such a wonderful experience.
+              Our team works hard every day to make sure every visit feels special — comments like yours
+              remind us why we love what we do. We can't wait to welcome you back next week. See you soon! 😊
+            </div>
+            <div class="ai-footer">
+              <div class="ai-time">Responding as: Your Business · 0 of 500 characters</div>
+              <div class="ai-actions">
+                <button class="ai-btn ai-btn-edit">Edit</button>
+                <button class="ai-btn ai-btn-approve">✓ Approve & Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything your reviews need.<br>Nothing you don't.</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI replies that feel human</h3>
+        <p>Each response is unique and personalized — mentioning details from the review itself. Never generic, never robotic.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Responds in under 2 minutes</h3>
+        <p>New review comes in → StarReply responds instantly. Google loves fast responses and so do your customers.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎭</div>
+        <h3>Matches your brand voice</h3>
+        <p>Set your tone once — formal, casual, friendly, or fun. Every reply sounds like you wrote it personally.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">😤</div>
+        <h3>Handles negative reviews smartly</h3>
+        <p>Sensitive replies get sent to you for approval first. Protect your reputation without lifting a finger.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📍</div>
+        <h3>Multiple locations</h3>
+        <p>Manage reviews for all your locations from one dashboard. Perfect for franchises and chains.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Review analytics</h3>
+        <p>Track your rating trends, response rate, and most common topics mentioned in reviews — all in one place.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Instant alerts</h3>
+        <p>Get notified immediately when a new review comes in. Email and mobile push notification.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌎</div>
+        <h3>Multilingual support</h3>
+        <p>Replies in the same language as the reviewer — automatically. Spanish, Portuguese, French, and more.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Secure Google connection</h3>
+        <p>We use official Google OAuth. No passwords stored. You can disconnect at any time with one click.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-label" style="justify-content:center">Pricing</div>
+    <h2 class="section-title">Simple, honest pricing</h2>
+    <p class="section-sub" style="margin: 0 auto 1rem;">
+      No contracts. No setup fees. Cancel anytime.
+    </p>
+    <div class="pricing-grid">
+      <!-- STARTER -->
+      <div class="plan">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">$29<span>/month</span></div>
+        <div class="plan-desc">Perfect for a single location just getting started</div>
+        <ul class="plan-features">
+          <li>1 Google Business location</li>
+          <li>Up to 100 reviews/month</li>
+          <li>AI auto-responses</li>
+          <li>Approval mode (you review before sending)</li>
+          <li>Email notifications</li>
+          <li class="dimmed">Multiple locations</li>
+          <li class="dimmed">Analytics dashboard</li>
+          <li class="dimmed">Multilingual responses</li>
+        </ul>
+        <a href="#cta" class="btn btn-outline plan-cta">Get started →</a>
+      </div>
+
+      <!-- PRO (POPULAR) -->
+      <div class="plan popular">
+        <div class="plan-badge">⭐ Most Popular</div>
+        <div class="plan-name">Professional</div>
+        <div class="plan-price">$59<span>/month</span></div>
+        <div class="plan-desc">For growing businesses that mean business</div>
+        <ul class="plan-features">
+          <li>Up to 3 locations</li>
+          <li>Unlimited reviews</li>
+          <li>AI autopilot (fully automatic)</li>
+          <li>Smart negative review routing</li>
+          <li>Email + push notifications</li>
+          <li>Analytics dashboard</li>
+          <li>Multilingual responses</li>
+          <li class="dimmed">White-label reports</li>
+        </ul>
+        <a href="#cta" class="btn btn-gold plan-cta">Get started →</a>
+      </div>
+
+      <!-- AGENCY -->
+      <div class="plan">
+        <div class="plan-name">Agency</div>
+        <div class="plan-price">$129<span>/month</span></div>
+        <div class="plan-desc">For agencies managing reviews for multiple clients</div>
+        <ul class="plan-features">
+          <li>Unlimited locations</li>
+          <li>Unlimited reviews</li>
+          <li>AI autopilot for all clients</li>
+          <li>White-label client reports</li>
+          <li>Priority support</li>
+          <li>Analytics for all locations</li>
+          <li>Multilingual responses</li>
+          <li>API access</li>
+        </ul>
+        <a href="#cta" class="btn btn-outline plan-cta">Get started →</a>
+      </div>
+    </div>
+    <p style="color:var(--muted); font-size:0.82rem; margin-top:2rem;">
+      🎁 All plans come with a <strong style="color:var(--text)">14-day free trial</strong>. No credit card needed to start.
+    </p>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <div class="section-label">What They're Saying</div>
+    <h2 class="section-title">Business owners love StarReply</h2>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"I used to spend Sunday mornings responding to the week's reviews. Now I spend that time with my family. StarReply handles everything and honestly the replies are better than what I wrote."</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">JC</div>
+          <div>
+            <div class="testi-name">Jessica Chen</div>
+            <div class="testi-role">Owner, The Bao House — 3 locations</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"Our Google ranking went from #8 to #2 in our neighborhood within 6 weeks of using StarReply. I had no idea that responding to reviews mattered that much. Game changer."</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">DM</div>
+          <div>
+            <div class="testi-name">Daniel Moura</div>
+            <div class="testi-role">Manager, FitCore Gym</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"I manage 12 salon locations. Before StarReply, reviews were a mess. Now every location has a 100% response rate and our clients feel heard. The ROI is insane."</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#22c55e,#06b6d4)">PR</div>
+          <div>
+            <div class="testi-name">Patricia Ramos</div>
+            <div class="testi-role">Director, GlowUp Salons Network</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title">Questions? We've got answers.</h2>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <div class="faq-q">Does Google allow automated review responses?</div>
+        <div class="faq-a">Yes — Google's Terms of Service allow automated responses as long as they're personalized and not spam. StarReply generates unique replies for each review, which is fully compliant.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Will the responses look fake or robotic?</div>
+        <div class="faq-a">No. Each response references specific details from the review itself (the customer's name, what they mentioned, the rating). Every response is unique — customers can't tell the difference.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What happens with negative reviews?</div>
+        <div class="faq-a">Reviews with 3 stars or below are flagged for your manual review before anything is sent. You'll get an instant notification with a suggested reply — you approve, edit, or handle it yourself.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How long does setup take?</div>
+        <div class="faq-a">About 5 minutes. You log in with your Google account, grant access to your Business Profile, fill in a quick brand voice survey, and you're live. No technical knowledge required.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I edit a reply before it's sent?</div>
+        <div class="faq-a">Absolutely. You can run in "Approval Mode" where every reply waits for your OK, or in "Autopilot Mode" where it sends automatically. You can switch between modes anytime.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What if I'm not satisfied?</div>
+        <div class="faq-a">You get a 14-day free trial with no credit card required. After that, if you're not completely satisfied, we offer a 30-day money-back guarantee. No questions asked.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section id="cta">
+  <div class="container">
+    <div class="stars" style="font-size:2rem; margin-bottom:1.5rem;">★ ★ ★ ★ ★</div>
+    <h2 class="section-title">
+      Your reviews are waiting.<br>
+      <em style="background:linear-gradient(135deg,var(--gold),#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Don't make them wait.</em>
+    </h2>
+    <p style="color:var(--muted); max-width:480px; margin:1rem auto 2.5rem; line-height:1.7;">
+      Join 500+ business owners who stopped worrying about reviews — and started winning more customers because of them.
+    </p>
+    <form id="ctaForm" style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center; max-width:480px; margin:0 auto;">
+      <input type="email" id="ctaEmail" placeholder="Your business email" required
+        style="flex:1;min-width:220px;padding:0.85rem 1.2rem;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:0.95rem;font-family:inherit;outline:none;">
+      <button type="submit" class="btn btn-gold btn-lg">Start Free Trial →</button>
+    </form>
+    <div class="success-msg" id="ctaSuccess" style="margin:1rem auto 0;">
+      🎉 You're on the list! We'll reach out within 24 hours.
+    </div>
+    <p style="color:var(--muted);font-size:0.8rem;margin-top:1.2rem;">
+      14-day free trial · No credit card · Cancel anytime
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">⭐ Star<span>Reply</span></span>
+  <p style="margin-bottom:1rem;">Automatically respond to Google Reviews with AI — in seconds.</p>
+  <p>
+    <a href="#">Privacy Policy</a> &nbsp;·&nbsp;
+    <a href="#">Terms of Service</a> &nbsp;·&nbsp;
+    <a href="mailto:brenomedeirospaes@gmail.com">brenomedeirospaes@gmail.com</a>
+  </p>
+  <p style="margin-top:1rem; font-size:0.78rem; opacity:0.5;">© 2026 StarReply. All rights reserved.</p>
+</footer>
+
+<script>
+  // Email capture — stores locally + shows success
+  function handleSubmit(formId, inputId, successId) {
+    const form = document.getElementById(formId);
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById(inputId).value.trim();
+      if (!email) return;
+
+      // Save to localStorage
+      const leads = JSON.parse(localStorage.getItem('starreply_leads') || '[]');
+      if (!leads.includes(email)) {
+        leads.push(email);
+        localStorage.setItem('starreply_leads', JSON.stringify(leads));
+      }
+
+      // Show success
+      form.style.display = 'none';
+      const success = document.getElementById(successId);
+      success.style.display = 'block';
+
+      console.log('StarReply lead captured:', email);
+      console.log('All leads:', leads);
+    });
+  }
+
+  handleSubmit('heroForm', 'heroEmail', 'heroSuccess');
+  handleSubmit('ctaForm',  'ctaEmail',  'ctaSuccess');
+
+  // Smooth entrance for cards on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.problem-card, .feature-card, .plan, .testi-card, .faq-item').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
