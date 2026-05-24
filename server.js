@@ -13,7 +13,17 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
 // ── GROQ AI SETUP ──
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// Inicializado de forma lazy para não crashar se a variável estiver ausente
+let groq = null;
+function getGroq() {
+  if (!groq) {
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error('GROQ_API_KEY is not set in environment variables.');
+    }
+    groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  }
+  return groq;
+}
 
 // ─────────────────────────────────────────
 // POST /api/generate
@@ -71,7 +81,7 @@ REVIEW DETAILS:
 
 Write ONLY the response text. No quotes, no labels, no explanations. Just the reply.`;
 
-    const completion = await groq.chat.completions.create({
+    const completion = await getGroq().chat.completions.create({
       model: 'llama-3.3-70b-versatile',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 200,
@@ -156,6 +166,6 @@ app.listen(PORT, () => {
   console.log(`🤖  AI Endpoint:   http://localhost:${PORT}/api/generate`);
   console.log(`💚  Health check:  http://localhost:${PORT}/api/health`);
   console.log('═'.repeat(50));
-  console.log('✅  Groq API:', process.env.GROQ_API_KEY ? 'Connected' : '⚠️  Key missing in .env');
+  console.log('✅  Groq API:', process.env.GROQ_API_KEY ? '✅ Connected' : '⚠️  GROQ_API_KEY missing — add in Railway Variables!');
   console.log('═'.repeat(50) + '\n');
 });
