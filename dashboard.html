@@ -989,7 +989,7 @@
     showToast('⏳ Generating new response...');
 
     try {
-      const response = await fetch('/api/generate', {
+      const response = await fetch('https://starreply-production.up.railway.app/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
