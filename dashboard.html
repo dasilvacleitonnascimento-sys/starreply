@@ -958,25 +958,66 @@
     showToast('Click inside the text to edit it ✏️');
   }
 
-  // Regenerate (demo — rotates through example replies)
-  const regenPool = [
-    "Wow, thank you so much for this amazing feedback! 🙏 Our team works incredibly hard to make every visit special, and hearing this is the best reward we could ask for. We hope to see you again very soon!",
-    "This just made our day! ☀️ We truly appreciate you taking the time to share your experience. It means a lot to our entire team. Looking forward to welcoming you back soon!",
-    "What a wonderful review — thank you! 🌟 We're so glad everything came together for you. Our team will be thrilled to hear this. Come back anytime — we'll be here! 😊",
-  ];
-  let regenIdx = 0;
-  function regenReply(replyId, countId) {
+  // ── REVIEW DATA (used by AI to generate real responses) ──
+  const reviewData = {
+    reply1: { reviewerName: 'Marcus',  rating: 5, reviewText: 'Absolutely love this place! The staff was incredibly welcoming and the service was super fast. The food arrived perfectly and tasted amazing — exactly what I needed after a long day. Will definitely be coming back next week. Highly recommend to anyone!' },
+    reply2: { reviewerName: 'Sandra',  rating: 3, reviewText: 'Food was okay but waited almost 40 minutes for our order. The waiter said it would be 15 minutes and never came back to update us. Won\'t come back unless things improve.' },
+    reply3: { reviewerName: 'Alex',    rating: 5, reviewText: 'Best lunch spot in the area, hands down. I bring clients here all the time and they always leave impressed. The presentation is beautiful and the staff always remembers our preferences. 10/10.' },
+  };
+
+  // ── BUSINESS SETTINGS (saved from Settings modal) ──
+  let businessSettings = {
+    name: 'The Bao House',
+    tone: 'friendly'
+  };
+
+  // ── REGENERATE — calls real Gemini AI ──
+  async function regenReply(replyId, countId) {
     const el = document.getElementById(replyId);
     if (!el) return;
+
+    const data = reviewData[replyId];
+    if (!data) {
+      showToast('⚠️ No review data found for this card');
+      return;
+    }
+
+    // Show loading state
     el.style.opacity = '0.4';
     el.style.transition = 'opacity 0.3s';
-    setTimeout(() => {
-      el.innerText = regenPool[regenIdx % regenPool.length];
-      regenIdx++;
+    el.innerText = '✦ Generating with AI...';
+    showToast('⏳ Generating new response...');
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reviewText:   data.reviewText,
+          reviewerName: data.reviewerName,
+          rating:       data.rating,
+          businessName: businessSettings.name,
+          tone:         businessSettings.tone
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        el.innerText = result.reply;
+        el.style.opacity = '1';
+        if (countId) updateCount(replyId, countId);
+        showToast('✦ New AI response generated!');
+      } else {
+        el.innerText = '⚠️ Error: ' + (result.error || 'Could not generate response');
+        el.style.opacity = '1';
+        showToast('❌ Error generating response');
+      }
+    } catch (err) {
+      el.innerText = '⚠️ Could not reach the server. Is it running? (node server.js)';
       el.style.opacity = '1';
-      if (countId) updateCount(replyId, countId);
-    }, 600);
-    showToast('New reply generated ✦');
+      showToast('❌ Server not connected');
+    }
   }
 
   // Filter tabs

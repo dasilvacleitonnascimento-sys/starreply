@@ -1,0 +1,16 @@
+{
+  "name": "starreply",
+  "version": "1.0.0",
+  "description": "AI-powered Google Review auto-responder",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "groq-sdk": "^0.9.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2"
+  }
+}
