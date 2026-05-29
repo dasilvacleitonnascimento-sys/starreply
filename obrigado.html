@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to StarReply!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #07090f; --bg2: #0d1117; --bg3: #161b27;
+    --border: #1e2535; --gold: #f59e0b; --gold2: #fbbf24;
+    --green: #22c55e; --text: #f1f5f9; --muted: #8b99b5;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 2rem 1.5rem; text-align: center;
+  }
+  .card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 20px; padding: 3rem 2.5rem;
+    max-width: 560px; width: 100%;
+    box-shadow: 0 0 60px rgba(245,158,11,0.08);
+  }
+  .check {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: rgba(34,197,94,0.12); border: 2px solid var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; margin: 0 auto 1.5rem;
+  }
+  h1 {
+    font-size: 1.9rem; font-weight: 900; letter-spacing: -1px;
+    margin-bottom: 0.75rem; line-height: 1.2;
+  }
+  h1 span { color: var(--gold); }
+  .subtitle {
+    color: var(--muted); font-size: 1rem; line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+  .steps {
+    display: flex; flex-direction: column; gap: 1rem;
+    margin-bottom: 2.5rem; text-align: left;
+  }
+  .step {
+    display: flex; align-items: flex-start; gap: 1rem;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.2rem;
+  }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(245,158,11,0.15); border: 1px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 800; color: var(--gold);
+  }
+  .step-text { font-size: 0.9rem; line-height: 1.5; }
+  .step-text strong { color: var(--text); display: block; margin-bottom: 0.2rem; }
+  .step-text span { color: var(--muted); }
+  .email-box {
+    background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 12px; padding: 1.2rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .email-box p { font-size: 0.88rem; color: var(--muted); margin-bottom: 0.3rem; }
+  .email-box a {
+    color: var(--gold); font-weight: 700; font-size: 1rem;
+    text-decoration: none;
+  }
+  .email-box a:hover { color: var(--gold2); }
+  .back {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: var(--muted); font-size: 0.85rem; text-decoration: none;
+    transition: color 0.2s;
+  }
+  .back:hover { color: var(--text); }
+  .logo {
+    font-size: 1.1rem; font-weight: 800; color: var(--text);
+    margin-bottom: 2rem; display: block; text-decoration: none;
+  }
+  .logo span { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<a href="StarReply_Landing.html" class="logo">⭐ Star<span>Reply</span></a>
+
+<div class="card">
+  <div class="check">✓</div>
+  <h1 id="t-title">You're in! Welcome to <span>StarReply</span></h1>
+  <p class="subtitle" id="t-subtitle">
+    Your payment was confirmed. Here's exactly what happens next —
+    we'll have you up and running within 24 hours.
+  </p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <strong id="t-s1h">Check your email</strong>
+        <span id="t-s1p">You'll receive a welcome email from us within the next few minutes with your onboarding link.</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <strong id="t-s2h">Connect your Google Business</strong>
+        <span id="t-s2p">We'll guide you step by step to grant access to your Google Business Profile. Takes 5 minutes.</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <strong id="t-s3h">StarReply goes live</strong>
+        <span id="t-s3p">Once connected, we configure your brand voice and activate auto-responses. You're on autopilot.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="email-box">
+    <p id="t-contact">Questions? Email us directly:</p>
+    <a href="mailto:brenomedeirospaes@gmail.com">brenomedeirospaes@gmail.com</a>
+  </div>
+
+  <a href="StarReply_Landing.html" class="back" id="t-back">← Back to homepage</a>
+</div>
+
+<script>
+  const t = {
+    en: {
+      title: 'You\'re in! Welcome to <span>StarReply</span>',
+      subtitle: 'Your payment was confirmed. Here\'s exactly what happens next — we\'ll have you up and running within 24 hours.',
+      s1h: 'Check your email',
+      s1p: 'You\'ll receive a welcome email from us within the next few minutes with your onboarding link.',
+      s2h: 'Connect your Google Business',
+      s2p: 'We\'ll guide you step by step to grant access to your Google Business Profile. Takes 5 minutes.',
+      s3h: 'StarReply goes live',
+      s3p: 'Once connected, we configure your brand voice and activate auto-responses. You\'re on autopilot.',
+      contact: 'Questions? Email us directly:',
+      back: '← Back to homepage',
+      htmlLang: 'en',
+    },
+    pt: {
+      title: 'Bem-vindo ao <span>StarReply</span>!',
+      subtitle: 'Seu pagamento foi confirmado. Veja o que acontece agora — você estará ativo em até 24 horas.',
+      s1h: 'Verifique seu email',
+      s1p: 'Você receberá um email de boas-vindas nosso nos próximos minutos com o link de configuração.',
+      s2h: 'Conecte seu Google Meu Negócio',
+      s2p: 'Vamos te guiar passo a passo para conceder acesso ao seu Perfil do Google Meu Negócio. Leva 5 minutos.',
+      s3h: 'StarReply entra em ação',
+      s3p: 'Após a conexão, configuramos a voz da sua marca e ativamos as respostas automáticas. Você está no piloto automático.',
+      contact: 'Dúvidas? Fale diretamente conosco:',
+      back: '← Voltar para o site',
+      htmlLang: 'pt-BR',
+    }
+  };
+
+  const lang = localStorage.getItem('starreply_lang') === 'pt' ? 'pt' : 'en';
+  const txt = t[lang];
+
+  document.documentElement.lang = txt.htmlLang;
+  document.getElementById('t-title').innerHTML = txt.title;
+  document.getElementById('t-subtitle').textContent = txt.subtitle;
+  document.getElementById('t-s1h').textContent = txt.s1h;
+  document.getElementById('t-s1p').textContent = txt.s1p;
+  document.getElementById('t-s2h').textContent = txt.s2h;
+  document.getElementById('t-s2p').textContent = txt.s2p;
+  document.getElementById('t-s3h').textContent = txt.s3h;
+  document.getElementById('t-s3p').textContent = txt.s3p;
+  document.getElementById('t-contact').textContent = txt.contact;
+  document.getElementById('t-back').textContent = txt.back;
+</script>
+</body>
+</html>
